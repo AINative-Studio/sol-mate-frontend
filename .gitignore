@@ -39,3 +39,10 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# gradle cache
+.gradle-cache/
+
+# build artifacts
+*.zip
+bugreport-*.zip
