@@ -16,7 +16,7 @@ import {
 import { Colors, Fonts, Spacing, BorderRadius } from '../constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_CONFIG } from '../config/api';
-import { signAndSendTransaction } from '../services/walletService';
+// import { signAndSendTransaction } from '../services/walletService'; // DISABLED
 
 interface Message {
   id: string;

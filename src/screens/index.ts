@@ -1,6 +1,7 @@
-export { default as SplashScreen } from './SplashScreen';
-export { default as WalletConnectScreen } from './WalletConnectScreen';
-export { default as ProfileSetupScreen } from './ProfileSetupScreen';
+// Wallet screens disabled
+// export { default as SplashScreen } from './SplashScreen';
+// export { default as WalletConnectScreen } from './WalletConnectScreen';
+// export { default as ProfileSetupScreen } from './ProfileSetupScreen';
 export { default as BrowseScreen } from './BrowseScreen';
 export { default as MessagesScreen } from './MessagesScreen';
 export { default as ChatScreen } from './ChatScreen';

@@ -12,7 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, Fonts, Spacing, BorderRadius } from '../constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useWallet } from '../contexts/WalletContext';
+// import { useWallet } from '../contexts/WalletContext'; // DISABLED
 import { API_CONFIG } from '../config/api';
 
 interface Persona {
@@ -39,7 +39,9 @@ interface MomentNFT {
 }
 
 export default function SettingsScreen() {
-  const { publicKey, disconnect } = useWallet();
+  // const { publicKey, disconnect } = useWallet(); // DISABLED
+  const publicKey = null; // Mock
+  const disconnect = async () => {}; // Mock
   const [persona, setPersona] = useState<Persona | null>(null);
   const [reputation, setReputation] = useState<Reputation | null>(null);
   const [nfts, setNfts] = useState<MomentNFT[]>([]);
@@ -52,57 +54,23 @@ export default function SettingsScreen() {
   const loadData = async () => {
     setIsLoading(true);
 
-    try {
-      const token = await AsyncStorage.getItem('auth_token');
-      const personaId = await AsyncStorage.getItem('current_persona_id');
+    // MOCK DATA - Skip API calls
+    setPersona({
+      id: '1',
+      display_name: 'Demo User',
+      age: 25,
+      interests: ['Coffee', 'Hiking', 'Music', 'Art'],
+      min_stake_requirement: 0.1,
+    });
 
-      if (!token || !personaId) {
-        return;
-      }
+    setReputation({
+      hearts: 5,
+      total_meetups: 3,
+      total_matches: 8,
+      active_stakes: 2,
+    });
 
-      // Load persona
-      const personaRes = await fetch(
-        `${API_CONFIG.BASE_URL}/v1/personas/${personaId}`,
-        {
-          headers: { 'Authorization': `Bearer ${token}` },
-        }
-      );
-
-      if (personaRes.ok) {
-        const personaData = await personaRes.json();
-        setPersona(personaData);
-      }
-
-      // Load reputation
-      const repRes = await fetch(
-        `${API_CONFIG.BASE_URL}/v1/reputation/me`,
-        {
-          headers: { 'Authorization': `Bearer ${token}` },
-        }
-      );
-
-      if (repRes.ok) {
-        const repData = await repRes.json();
-        setReputation(repData);
-      }
-
-      // Load Moment NFTs
-      const nftRes = await fetch(
-        `${API_CONFIG.BASE_URL}/v1/nfts/moments`,
-        {
-          headers: { 'Authorization': `Bearer ${token}` },
-        }
-      );
-
-      if (nftRes.ok) {
-        const nftData = await nftRes.json();
-        setNfts(nftData.nfts || []);
-      }
-    } catch (error) {
-      console.error('Failed to load data:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    setIsLoading(false);
   };
 
   const handleDisconnect = async () => {
