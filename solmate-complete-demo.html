@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOLmate - Find Your SOLmate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --pink: #F0407A;
+            --purple: #B07EF7;
+            --orange: #F5A623;
+            --black: #0D0D0D;
+            --white: #FAFAFA;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--pink);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .gradient-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, var(--pink) 0%, #C7517D 100%);
+            z-index: -1;
+        }
+
+        .gradient-purple {
+            background: linear-gradient(180deg, var(--pink) 0%, var(--purple) 100%);
+        }
+
+        .noise-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.06;
+            background: rgba(255,255,255,0.02);
+            pointer-events: none;
+        }
+
+        .decorative-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .shape1 {
+            width: 380px;
+            height: 380px;
+            background: rgba(255,255,255,0.1);
+            top: -140px;
+            right: -120px;
+        }
+
+        .shape2 {
+            width: 260px;
+            height: 260px;
+            background: rgba(255,255,255,0.07);
+            top: -60px;
+            right: -80px;
+        }
+
+        .shape3 {
+            width: 500px;
+            height: 500px;
+            background: rgba(13,13,13,0.12);
+            bottom: -200px;
+            left: -160px;
+        }
+
+        .shape4 {
+            width: 120px;
+            height: 120px;
+            background: var(--orange);
+            opacity: 0.55;
+            bottom: 220px;
+            right: -30px;
+        }
+
+        .shape5 {
+            width: 180px;
+            height: 180px;
+            background: var(--purple);
+            opacity: 0.3;
+            top: 200px;
+            left: -60px;
+        }
+
+        /* Splash Screen */
+        .wordmark {
+            font-size: 72px;
+            font-weight: 800;
+            color: var(--white);
+            text-align: center;
+            letter-spacing: -2.5px;
+            margin-top: 100px;
+            margin-bottom: 24px;
+        }
+
+        .wordmark-dot {
+            color: rgba(250,250,250,0.4);
+        }
+
+        .gallery-card {
+            background: rgba(255,255,255,0.15);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.25);
+            margin: 0 32px 24px;
+            overflow: hidden;
+            height: 420px;
+        }
+
+        .gallery-scroll {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            height: 100%;
+            scrollbar-width: none;
+        }
+
+        .gallery-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .gallery-page {
+            min-width: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .page-emoji {
+            font-size: 56px;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 16px;
+        }
+
+        .page-description {
+            font-size: 15px;
+            color: rgba(255,255,255,0.85);
+            line-height: 22px;
+            max-width: 260px;
+        }
+
+        .page-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px 0;
+        }
+
+        .indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s;
+        }
+
+        .indicator.active {
+            background: var(--white);
+            width: 20px;
+        }
+
+        .cta-button {
+            margin: 0 32px 32px;
+            padding: 18px 24px;
+            background: var(--white);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.22);
+            border: none;
+            font-size: 16px;
+            font-weight: 800;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .cta-arrow {
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            background: var(--pink);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        /* Back button */
+        .back-button {
+            position: absolute;
+            top: 50px;
+            left: 32px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 32px;
+            cursor: pointer;
+            border: none;
+            z-index: 10;
+        }
+
+        .hero {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0 32px 48px;
+        }
+
+        .hero .wordmark {
+            font-size: 52px;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+
+        .tagline {
+            font-size: 15px;
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            line-height: 22px;
+            max-width: 280px;
+        }
+
+        .bottom-sheet {
+            background: var(--white);
+            border-radius: 32px 32px 0 0;
+            padding: 28px 28px 40px;
+        }
+
+        .sheet-handle {
+            width: 36px;
+            height: 4px;
+            background: rgba(13,13,13,0.12);
+            border-radius: 999px;
+            margin: 0 auto 24px;
+        }
+
+        .sheet-heading {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--black);
+            margin-bottom: 6px;
+        }
+
+        .sheet-sub {
+            font-size: 14px;
+            color: rgba(13,13,13,0.45);
+            margin-bottom: 24px;
+            line-height: 21px;
+        }
+
+        .wallet-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            border: 1.5px solid rgba(13,13,13,0.1);
+            background: var(--white);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .wallet-btn:active {
+            transform: scale(0.98);
+        }
+
+        .wallet-btn-primary {
+            background: var(--black);
+            border-color: var(--black);
+        }
+
+        .wallet-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .icon-phantom { background: #AB9FF2; }
+        .icon-backpack { background: #FF6B35; }
+        .icon-apple { background: var(--black); }
+
+        .wallet-btn-label {
+            flex: 1;
+        }
+
+        .wallet-btn-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--black);
+        }
+
+        .wallet-btn-primary .wallet-btn-text {
+            color: var(--white);
+        }
+
+        .wallet-btn-sub {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(13,13,13,0.4);
+            margin-top: 1px;
+        }
+
+        .wallet-btn-primary .wallet-btn-sub {
+            color: rgba(255,255,255,0.4);
+        }
+
+        .wallet-arrow {
+            font-size: 20px;
+            color: rgba(13,13,13,0.3);
+        }
+
+        .wallet-btn-primary .wallet-arrow {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .divider-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: rgba(13,13,13,0.08);
+        }
+
+        .divider-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(13,13,13,0.3);
+        }
+
+        .explore-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 16px;
+            border: 1.5px solid rgba(13,13,13,0.1);
+            background: transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(13,13,13,0.5);
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .legal {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(13,13,13,0.3);
+            margin-top: 16px;
+            line-height: 17px;
+        }
+
+        /* Profile Setup */
+        .scroll-content {
+            padding: 80px 32px 32px;
+        }
+
+        .heading {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .subheading {
+            font-size: 15px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 32px;
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .label {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .label-sub {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 16px;
+        }
+
+        .input {
+            width: 100%;
+            background: var(--white);
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--black);
+            border: none;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .input::placeholder {
+            color: rgba(13,13,13,0.3);
+        }
+
+        .interest-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .interest-chip {
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.2);
+            border: 1.5px solid rgba(255,255,255,0.3);
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .interest-chip.active {
+            background: var(--white);
+            border-color: var(--white);
+            color: var(--pink);
+        }
+
+        .stake-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stake-option {
+            flex: 1;
+            min-width: 30%;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.2);
+            border: 1.5px solid rgba(255,255,255,0.3);
+            text-align: center;
+            font-size: 14px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.9);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .stake-option.active {
+            background: var(--white);
+            border-color: var(--white);
+            color: var(--pink);
+        }
+
+        .custom-stake-input {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .custom-stake-input.active {
+            display: block;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 18px;
+            background: var(--white);
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--black);
+            border: none;
+            cursor: pointer;
+            margin-top: 24px;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Browse Screen */
+        .header {
+            padding: 60px 32px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--white);
+        }
+
+        .logo-dot {
+            opacity: 0.6;
+        }
+
+        .filter-button {
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .browse-container {
+            padding: 0 24px 100px;
+        }
+
+        .browse-card {
+            background: var(--white);
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .browse-card:active {
+            transform: scale(0.98);
+        }
+
+        .browse-card-image {
+            width: 100%;
+            height: 320px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            position: relative;
+        }
+
+        .card-quick-actions {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .quick-action-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: rgba(255,255,255,0.95);
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .browse-card-info {
+            padding: 20px;
+        }
+
+        .browse-name {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--black);
+            margin-bottom: 8px;
+        }
+
+        .browse-compatibility {
+            display: inline-block;
+            background: var(--purple);
+            color: var(--white);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .browse-interests {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .browse-interest-tag {
+            background: rgba(13,13,13,0.06);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(13,13,13,0.7);
+        }
+
+        .browse-stake {
+            font-size: 13px;
+            color: rgba(13,13,13,0.5);
+        }
+
+        .browse-stake span {
+            font-weight: 800;
+            color: var(--pink);
+        }
+
+        /* Profile Detail Modal */
+        .profile-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .profile-modal.active {
+            display: flex;
+        }
+
+        .profile-modal-content {
+            background: var(--white);
+            border-radius: 32px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .profile-modal-image {
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 120px;
+            position: relative;
+        }
+
+        .profile-modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.95);
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-modal-info {
+            padding: 24px;
+        }
+
+        .profile-modal-name {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--black);
+            margin-bottom: 8px;
+        }
+
+        .profile-modal-age {
+            font-size: 20px;
+            color: rgba(13,13,13,0.6);
+            margin-bottom: 16px;
+        }
+
+        .profile-modal-section {
+            margin-bottom: 20px;
+        }
+
+        .profile-modal-label {
+            font-size: 13px;
+            font-weight: 800;
+            color: rgba(13,13,13,0.5);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-modal-actions {
+            display: flex;
+            gap: 12px;
+            padding: 0 24px 24px;
+        }
+
+        .modal-skip-btn {
+            flex: 1;
+            padding: 16px;
+            background: rgba(13,13,13,0.06);
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 800;
+            color: rgba(13,13,13,0.5);
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .modal-match-btn {
+            flex: 2;
+            padding: 16px;
+            background: var(--pink);
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--white);
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Messages */
+        .messages-header {
+            padding: 60px 32px 24px;
+        }
+
+        .messages-heading {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 4px;
+        }
+
+        .messages-sub {
+            font-size: 15px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .match-card {
+            display: flex;
+            align-items: center;
+            background: var(--white);
+            border-radius: 24px;
+            padding: 16px;
+            margin: 0 24px 16px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: var(--purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--white);
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .match-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .match-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--black);
+        }
+
+        .match-time {
+            font-size: 12px;
+            color: rgba(13,13,13,0.4);
+        }
+
+        .last-message {
+            font-size: 14px;
+            color: rgba(13,13,13,0.6);
+            margin-bottom: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .match-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stake-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--pink);
+        }
+
+        .expiry-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(13,13,13,0.4);
+        }
+
+        .checkin-badge {
+            background: var(--purple);
+            color: var(--white);
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .unread-badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            background: var(--pink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--white);
+        }
+
+        /* Chat */
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 50px 24px 16px;
+            background: var(--white);
+            border-bottom: 1px solid rgba(13,13,13,0.08);
+        }
+
+        .chat-back-button {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--black);
+            font-size: 32px;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .header-info {
+            flex: 1;
+            margin-left: 8px;
+        }
+
+        .header-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--black);
+        }
+
+        .header-status {
+            font-size: 13px;
+            color: var(--purple);
+        }
+
+        .stake-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: rgba(240,64,122,0.08);
+        }
+
+        .countdown-pill {
+            padding: 6px 14px;
+            background: rgba(13,13,13,0.08);
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 800;
+            color: rgba(13,13,13,0.7);
+        }
+
+        .messages-list {
+            flex: 1;
+            padding: 16px 24px;
+            overflow-y: auto;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 10px 16px;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            font-size: 15px;
+            line-height: 20px;
+        }
+
+        .message-bubble.own {
+            align-self: flex-end;
+            background: var(--pink);
+            color: var(--white);
+            margin-left: auto;
+        }
+
+        .message-bubble.their {
+            align-self: flex-start;
+            background: rgba(13,13,13,0.06);
+            color: var(--black);
+        }
+
+        .actions-bar {
+            display: flex;
+            padding: 8px 24px;
+            gap: 8px;
+            background: var(--white);
+        }
+
+        .gift-button {
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            background: rgba(176,126,247,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .checkin-button {
+            flex: 1;
+            padding: 12px;
+            background: var(--purple);
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: flex-end;
+            padding: 16px 24px;
+            background: var(--white);
+            border-top: 1px solid rgba(13,13,13,0.08);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(13,13,13,0.05);
+            border-radius: 24px;
+            padding: 10px 16px;
+            font-size: 15px;
+            color: var(--black);
+            border: none;
+            font-family: 'Nunito', sans-serif;
+            max-height: 100px;
+            resize: none;
+        }
+
+        .send-button {
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            background: var(--pink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            margin-left: 8px;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0 20px;
+            border-top: 1px solid rgba(13,13,13,0.08);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(13,13,13,0.5);
+        }
+
+        .nav-item.active .nav-label {
+            color: var(--pink);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: flex-end;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 100%;
+            background: var(--white);
+            border-radius: 32px 32px 0 0;
+            padding: 32px 32px 40px;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--black);
+        }
+
+        .modal-close {
+            font-size: 24px;
+            color: rgba(13,13,13,0.5);
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        /* Check-in Screen */
+        .checkin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 50px 24px 16px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--white);
+        }
+
+        .checkin-content {
+            flex: 1;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .checkin-heading {
+            font-size: 24px;
+            color: rgba(255,255,255,0.8);
+            text-align: center;
+        }
+
+        .partner-name {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--white);
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .status-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 0;
+        }
+
+        .status-emoji {
+            font-size: 64px;
+            margin-bottom: 24px;
+        }
+
+        .status-text {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--white);
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .status-sub {
+            font-size: 15px;
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .confirm-button {
+            width: 100%;
+            padding: 18px;
+            background: var(--white);
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--pink);
+            border: none;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .info-box {
+            padding: 24px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            line-height: 19px;
+        }
+
+        /* Mint NFT Screen */
+        .mint-content {
+            flex: 1;
+            padding: 48px 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .mint-emoji {
+            font-size: 80px;
+            margin-bottom: 24px;
+        }
+
+        .mint-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--white);
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .mint-description {
+            font-size: 16px;
+            color: rgba(255,255,255,0.8);
+            text-align: center;
+            line-height: 24px;
+            margin-bottom: 32px;
+        }
+
+        .features {
+            width: 100%;
+            margin-bottom: 32px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .feature-icon {
+            font-size: 20px;
+            margin-right: 16px;
+        }
+
+        .feature-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .nft-card {
+            width: 100%;
+            background: rgba(255,255,255,0.15);
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .nft-preview {
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .nft-emoji {
+            font-size: 48px;
+        }
+
+        .nft-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 4px;
+        }
+
+        .nft-date {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+        }
+
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid var(--white);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash" class="screen active">
+        <div class="gradient-bg"></div>
+        <div class="noise-overlay"></div>
+        <div class="decorative-shapes">
+            <div class="shape shape1"></div>
+            <div class="shape shape2"></div>
+            <div class="shape shape3"></div>
+            <div class="shape shape4"></div>
+            <div class="shape shape5"></div>
+        </div>
+
+        <div style="padding: 32px; display: flex; flex-direction: column; height: 100vh; justify-content: space-between;">
+            <div class="wordmark">
+                SOL<span class="wordmark-dot">mate</span>
+            </div>
+
+            <div class="gallery-card">
+                <div class="gallery-scroll" id="galleryScroll">
+                    <div class="gallery-page">
+                        <div class="page-emoji">💔</div>
+                        <div class="page-title">The Problem</div>
+                        <div class="page-description">Ghosting. No-shows. Catfishing. Zero consequences for bad behavior.</div>
+                    </div>
+                    <div class="gallery-page">
+                        <div class="page-emoji">🔥</div>
+                        <div class="page-title">The Solution</div>
+                        <div class="page-description">Stake SOL to confirm. Show up, get it back. Ghost, it burns forever.</div>
+                    </div>
+                    <div class="gallery-page">
+                        <div class="page-emoji">✨</div>
+                        <div class="page-title">The Outcome</div>
+                        <div class="page-description">Mint a Moment NFT. Build your heart score. Trust becomes your reputation.</div>
+                    </div>
+                </div>
+                <div class="page-indicators">
+                    <div class="indicator active"></div>
+                    <div class="indicator"></div>
+                    <div class="indicator"></div>
+                </div>
+            </div>
+
+            <button class="cta-button" onclick="showScreen('wallet')">
+                Get started
+                <div class="cta-arrow">›</div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Wallet Connect Screen -->
+    <div id="wallet" class="screen">
+        <div class="gradient-bg"></div>
+        <div class="noise-overlay"></div>
+        <div class="decorative-shapes">
+            <div class="shape shape1"></div>
+            <div class="shape shape2"></div>
+            <div class="shape shape3"></div>
+            <div class="shape shape4"></div>
+            <div class="shape shape5"></div>
+        </div>
+
+        <button class="back-button" onclick="showScreen('splash')">‹</button>
+
+        <div style="display: flex; flex-direction: column; height: 100vh; justify-content: space-between;">
+            <div class="hero">
+                <div class="wordmark">
+                    SOL<span class="wordmark-dot">mate</span>
+                </div>
+                <div class="tagline">
+                    Connect your wallet to get started.<br>Your identity stays yours.
+                </div>
+            </div>
+
+            <div class="bottom-sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-heading">Find your SOLmate</div>
+                <div class="sheet-sub">Choose how you want to connect</div>
+
+                <button class="wallet-btn wallet-btn-primary" onclick="showScreen('profile')">
+                    <div class="wallet-icon icon-phantom">👻</div>
+                    <div class="wallet-btn-label">
+                        <div class="wallet-btn-text">Phantom</div>
+                        <div class="wallet-btn-sub">Recommended</div>
+                    </div>
+                    <div class="wallet-arrow">›</div>
+                </button>
+
+                <button class="wallet-btn" onclick="showScreen('profile')">
+                    <div class="wallet-icon icon-backpack">🎒</div>
+                    <div class="wallet-btn-label">
+                        <div class="wallet-btn-text">Backpack</div>
+                        <div class="wallet-btn-sub">Seeker-optimized</div>
+                    </div>
+                    <div class="wallet-arrow">›</div>
+                </button>
+
+                <button class="wallet-btn" onclick="alert('Social login coming soon!')">
+                    <div class="wallet-icon icon-apple">🍎</div>
+                    <div class="wallet-btn-label">
+                        <div class="wallet-btn-text">Apple / Google</div>
+                        <div class="wallet-btn-sub">Social sign-in</div>
+                    </div>
+                    <div class="wallet-arrow">›</div>
+                </button>
+
+                <div class="divider-row">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">or</div>
+                    <div class="divider-line"></div>
+                </div>
+
+                <button class="explore-btn" onclick="showScreen('browse'); showNav();">Explore anonymously →</button>
+
+                <div class="legal">
+                    By continuing you agree to our Terms and Privacy Policy.<br>
+                    Your wallet address is never shown publicly.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Setup Screen -->
+    <div id="profile" class="screen">
+        <div class="gradient-bg"></div>
+
+        <div class="scroll-content">
+            <div class="heading">Create your profile</div>
+            <div class="subheading">Let's get you started. This only takes a minute.</div>
+
+            <div class="section">
+                <div class="label">Display Name</div>
+                <input type="text" class="input" placeholder="e.g., .nova" value="Penelope" maxlength="20" id="profileName">
+            </div>
+
+            <div class="section">
+                <div class="label">Age</div>
+                <input type="number" class="input" placeholder="21" value="26" maxlength="3" id="profileAge">
+            </div>
+
+            <div class="section">
+                <div class="label">Interests (<span id="interestCount">0</span>/5)</div>
+                <div class="label-sub">Pick 3-5 things you love</div>
+                <div class="interest-grid">
+                    <div class="interest-chip" onclick="toggleInterest(this)">music</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">art</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">crypto</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">travel</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">fitness</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">food</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">tech</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">gaming</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">reading</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">movies</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">hiking</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">yoga</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">photography</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">dancing</div>
+                    <div class="interest-chip" onclick="toggleInterest(this)">cooking</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="label">Minimum Stake to Message You</div>
+                <div class="label-sub">How much SOL should someone stake to send you a message?</div>
+                <div class="stake-options">
+                    <div class="stake-option" onclick="selectStake(this, 0.1)">0.1 SOL</div>
+                    <div class="stake-option active" onclick="selectStake(this, 0.25)">0.25 SOL</div>
+                    <div class="stake-option" onclick="selectStake(this, 0.5)">0.5 SOL</div>
+                    <div class="stake-option" onclick="selectStake(this, 1)">1 SOL</div>
+                    <div class="stake-option" onclick="selectStake(this, 2)">2 SOL</div>
+                    <div class="stake-option" onclick="selectStake(this, 'custom')">Custom</div>
+                </div>
+                <div class="custom-stake-input" id="customStakeInput">
+                    <input type="number" class="input" placeholder="Enter custom amount" step="0.01" min="0.01">
+                </div>
+            </div>
+
+            <button class="submit-button" onclick="setupProfile()">Continue →</button>
+        </div>
+    </div>
+
+    <!-- Browse Screen -->
+    <div id="browse" class="screen">
+        <div class="gradient-bg gradient-purple"></div>
+
+        <div class="header">
+            <div class="logo">SOL<span class="logo-dot">mate</span></div>
+            <button class="filter-button" onclick="alert('Filters coming soon!')">⚙</button>
+        </div>
+
+        <div class="browse-container" id="browseContainer">
+            <!-- Browse cards will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Messages Screen -->
+    <div id="messages" class="screen">
+        <div class="gradient-bg gradient-purple"></div>
+
+        <div class="messages-header">
+            <div class="messages-heading">Messages</div>
+            <div class="messages-sub"><span id="matchCount">3</span> active chats</div>
+        </div>
+
+        <div id="matchesList" style="padding-bottom: 100px;">
+            <!-- Matches will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Chat Screen -->
+    <div id="chat" class="screen" style="background: var(--white); display: flex; flex-direction: column;">
+        <div class="chat-header">
+            <button class="chat-back-button" onclick="showScreen('messages')">‹</button>
+            <div class="header-info">
+                <div class="header-name" id="chatName">Marcus</div>
+                <div class="header-status">Online</div>
+            </div>
+        </div>
+
+        <div class="stake-banner" id="stakeBanner">
+            <div>
+                <div style="font-size: 12px; color: rgba(13,13,13,0.5);">Stakes locked</div>
+                <div style="font-size: 16px; font-weight: 800; color: var(--pink);" id="chatStake">0.25 SOL each</div>
+            </div>
+            <div class="countdown-pill" id="chatCountdown">47h left</div>
+        </div>
+
+        <div class="messages-list" id="chatMessages">
+            <!-- Messages will be populated by JavaScript -->
+        </div>
+
+        <div class="actions-bar" id="actionsBar">
+            <button class="gift-button" onclick="alert('Gift feature!')">🎁</button>
+            <button class="checkin-button" id="checkinBtn" style="display: none;" onclick="alert('Check-in flow!')">Check In</button>
+        </div>
+
+        <div class="input-container">
+            <textarea class="chat-input" placeholder="Type a message..." id="messageInput"></textarea>
+            <button class="send-button" onclick="sendMessage()">›</button>
+        </div>
+    </div>
+
+    <!-- Profile Detail Modal -->
+    <div id="profileModal" class="profile-modal">
+        <div class="profile-modal-content">
+            <div class="profile-modal-image" id="modalImage">
+                <button class="profile-modal-close" onclick="hideProfileModal()">✕</button>
+            </div>
+            <div class="profile-modal-info">
+                <div class="profile-modal-name" id="modalName"></div>
+                <div class="profile-modal-age" id="modalAge"></div>
+
+                <div class="profile-modal-section">
+                    <div class="profile-modal-label">Compatibility</div>
+                    <div class="browse-compatibility" id="modalCompat"></div>
+                </div>
+
+                <div class="profile-modal-section">
+                    <div class="profile-modal-label">Interests</div>
+                    <div class="browse-interests" id="modalInterests"></div>
+                </div>
+
+                <div class="profile-modal-section">
+                    <div class="profile-modal-label">Minimum Stake</div>
+                    <div class="browse-stake"><span id="modalStake"></span></div>
+                </div>
+            </div>
+            <div class="profile-modal-actions">
+                <button class="modal-skip-btn" onclick="hideProfileModal(); nextProfile();">Skip</button>
+                <button class="modal-match-btn" onclick="stakeAndMessage()">Stake & Message →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Check-In Screen -->
+    <div id="checkin" class="screen">
+        <div class="gradient-bg"></div>
+
+        <div class="checkin-header">
+            <button class="back-button" onclick="showScreen('chat')" style="position: relative; top: 0; left: 0;">‹</button>
+            <div class="header-title">Check In</div>
+            <div style="width: 40px;"></div>
+        </div>
+
+        <div class="checkin-content">
+            <div class="checkin-heading">Confirm meetup with</div>
+            <div class="partner-name">Marcus</div>
+
+            <div class="status-container">
+                <div class="status-emoji">✅</div>
+                <div class="status-text">You're nearby!</div>
+                <div class="status-sub">43m apart</div>
+                <button class="confirm-button" onclick="confirmCheckin()">Confirm Arrival</button>
+            </div>
+
+            <div class="info-box">
+                <div class="info-text">Both of you must be within 100m to check in</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mint NFT Screen -->
+    <div id="mint" class="screen">
+        <div class="gradient-bg" style="background: linear-gradient(180deg, var(--purple) 0%, var(--pink) 100%);"></div>
+
+        <div class="mint-content">
+            <div class="mint-emoji">🖼️</div>
+            <div class="mint-title">Mint a Moment NFT</div>
+            <div class="mint-description">
+                Commemorate your meetup with Marcus as an NFT on Solana. This will be added to both of your collections.
+            </div>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <div class="feature-text">Proof of meeting</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <div class="feature-text">Stored on Solana</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✓</div>
+                    <div class="feature-text">Free to mint</div>
+                </div>
+            </div>
+
+            <button class="submit-button" onclick="mintNFT()">Mint NFT</button>
+            <button class="explore-btn" style="color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.3); margin-top: 8px;" onclick="showScreen('messages')">Skip for now</button>
+        </div>
+    </div>
+
+    <!-- Mint Success Screen -->
+    <div id="mintSuccess" class="screen">
+        <div class="gradient-bg" style="background: linear-gradient(180deg, var(--purple) 0%, var(--pink) 100%);"></div>
+
+        <div class="mint-content">
+            <div class="mint-emoji">🎉</div>
+            <div class="mint-title">Moment NFT Minted!</div>
+            <div class="mint-description">
+                Your meetup with Marcus is now immortalized on Solana
+            </div>
+
+            <div class="nft-card">
+                <div class="nft-preview">
+                    <div class="nft-emoji">✨</div>
+                </div>
+                <div class="nft-title">Moment with Marcus</div>
+                <div class="nft-date" id="nftDate"></div>
+            </div>
+
+            <button class="submit-button" onclick="showScreen('messages')">Return to Messages</button>
+            <button class="explore-btn" style="color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.3); margin-top: 8px;" onclick="showScreen('browse'); setActiveNav(document.querySelectorAll('.nav-item')[0]);">Browse More</button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div id="bottomNav" class="bottom-nav" style="display: none;">
+        <button class="nav-item active" onclick="showScreen('browse'); setActiveNav(this);">
+            <div class="nav-icon">🔍</div>
+            <div class="nav-label">Browse</div>
+        </button>
+        <button class="nav-item" onclick="showScreen('messages'); setActiveNav(this);">
+            <div class="nav-icon">💬</div>
+            <div class="nav-label">Messages</div>
+        </button>
+        <button class="nav-item" onclick="alert('Profile: Penelope, 26')">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">Profile</div>
+        </button>
+    </div>
+
+    <script>
+        // Mock data
+        const profiles = [
+            {
+                name: "Marcus",
+                age: 28,
+                emoji: "👨🏾",
+                gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                compatibility: 92,
+                interests: ["crypto", "art", "travel", "music", "fitness"],
+                minStake: 0.25
+            },
+            {
+                name: "Sofia",
+                age: 24,
+                emoji: "👩🏻",
+                gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                compatibility: 87,
+                interests: ["yoga", "travel", "food", "photography", "music"],
+                minStake: 0.5
+            },
+            {
+                name: "Jamal",
+                age: 30,
+                emoji: "👨🏿",
+                gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+                compatibility: 85,
+                interests: ["tech", "gaming", "crypto", "fitness", "music"],
+                minStake: 0.1
+            },
+            {
+                name: "Mia",
+                age: 27,
+                emoji: "👩🏼",
+                gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+                compatibility: 91,
+                interests: ["art", "dancing", "travel", "food", "movies"],
+                minStake: 0.25
+            },
+            {
+                name: "Chen",
+                age: 25,
+                emoji: "👨🏻",
+                gradient: "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
+                compatibility: 88,
+                interests: ["tech", "crypto", "reading", "hiking", "photography"],
+                minStake: 0.5
+            }
+        ];
+
+        let currentProfileIndex = 0;
+        let selectedInterests = ["art", "travel", "crypto"];
+        let selectedStake = 0.25;
+
+        // Conversations data
+        const conversations = [
+            {
+                name: "Marcus",
+                emoji: "👨🏾",
+                lastMessage: "See you at 7pm!",
+                time: "2h ago",
+                stake: 0.25,
+                expiry: "5h left",
+                unread: 2,
+                hasCheckin: true,
+                messages: [
+                    { own: false, text: "Hey! Nice to match with you 👋" },
+                    { own: true, text: "Hi Marcus! Love your vibe" },
+                    { own: false, text: "Thanks! Want to grab dinner this weekend?" },
+                    { own: true, text: "Sure! Saturday works 🍝" },
+                    { own: false, text: "Perfect! How about 7pm at that Italian place?" },
+                    { own: true, text: "Sounds great!" },
+                    { own: false, text: "See you at 7pm!" }
+                ]
+            },
+            {
+                name: "Sofia",
+                emoji: "👩🏻",
+                lastMessage: "That sounds amazing!",
+                time: "1d ago",
+                stake: 0.5,
+                expiry: "23h left",
+                unread: 0,
+                hasCheckin: false,
+                messages: [
+                    { own: false, text: "Hi! I see you're into yoga too 🧘‍♀️" },
+                    { own: true, text: "Yes! Do you go to classes or practice at home?" },
+                    { own: false, text: "Both! There's a great studio downtown" },
+                    { own: true, text: "Oh nice! Which one?" },
+                    { own: false, text: "Serenity Yoga - they have sunrise sessions" },
+                    { own: true, text: "That sounds amazing!" }
+                ]
+            },
+            {
+                name: "Chen",
+                emoji: "👨🏻",
+                lastMessage: "Check out this NFT project",
+                time: "3d ago",
+                stake: 0.5,
+                expiry: "21h left",
+                unread: 1,
+                hasCheckin: false,
+                messages: [
+                    { own: false, text: "Hey! Saw you're into crypto" },
+                    { own: true, text: "Yeah! Are you building anything?" },
+                    { own: false, text: "Working on a DeFi protocol on Solana" },
+                    { own: true, text: "That's cool! What's it about?" },
+                    { own: false, text: "Lending platform with dynamic rates" },
+                    { own: true, text: "Interesting! 👀" },
+                    { own: false, text: "Check out this NFT project" }
+                ]
+            }
+        ];
+
+        // Initialize
+        window.onload = function() {
+            renderBrowseCards();
+            renderMessages();
+
+            // Pre-select interests for Penelope
+            setTimeout(() => {
+                const chips = document.querySelectorAll('.interest-chip');
+                selectedInterests.forEach(interest => {
+                    chips.forEach(chip => {
+                        if (chip.textContent === interest) {
+                            chip.classList.add('active');
+                        }
+                    });
+                });
+                document.getElementById('interestCount').textContent = selectedInterests.length;
+            }, 100);
+
+            // Initialize NFT date
+            const now = new Date();
+            document.getElementById('nftDate').textContent = now.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        };
+
+        function renderBrowseCards() {
+            const container = document.getElementById('browseContainer');
+            container.innerHTML = profiles.map((profile, index) => `
+                <div class="browse-card" onclick="showProfileModal(${index})">
+                    <div class="browse-card-image" style="background: ${profile.gradient}">
+                        <div style="font-size: 100px;">${profile.emoji}</div>
+                        <div class="card-quick-actions" onclick="event.stopPropagation()">
+                            <button class="quick-action-btn" onclick="nextProfile()">✕</button>
+                            <button class="quick-action-btn" onclick="showProfileModal(${index}); event.stopPropagation();">👀</button>
+                        </div>
+                    </div>
+                    <div class="browse-card-info">
+                        <div class="browse-name">${profile.name}, ${profile.age}</div>
+                        <div class="browse-compatibility">${profile.compatibility}% match</div>
+                        <div class="browse-interests">
+                            ${profile.interests.slice(0, 3).map(int =>
+                                `<div class="browse-interest-tag">${int}</div>`
+                            ).join('')}
+                        </div>
+                        <div class="browse-stake">Stake to message: <span>${profile.minStake} SOL</span></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showProfileModal(index) {
+            currentProfileIndex = index;
+            const profile = profiles[index];
+
+            document.getElementById('modalImage').style.background = profile.gradient;
+            document.getElementById('modalImage').innerHTML = `
+                <div style="font-size: 140px;">${profile.emoji}</div>
+                <button class="profile-modal-close" onclick="hideProfileModal()">✕</button>
+            `;
+            document.getElementById('modalName').textContent = profile.name;
+            document.getElementById('modalAge').textContent = `${profile.age} years old`;
+            document.getElementById('modalCompat').textContent = `${profile.compatibility}% match`;
+            document.getElementById('modalInterests').innerHTML = profile.interests.map(int =>
+                `<div class="browse-interest-tag">${int}</div>`
+            ).join('');
+            document.getElementById('modalStake').textContent = `${profile.minStake} SOL`;
+
+            document.getElementById('profileModal').classList.add('active');
+        }
+
+        function hideProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+
+        function nextProfile() {
+            hideProfileModal();
+            currentProfileIndex = (currentProfileIndex + 1) % profiles.length;
+            setTimeout(() => {
+                document.getElementById('browseContainer').scrollTop = currentProfileIndex * 500;
+            }, 300);
+        }
+
+        function stakeAndMessage() {
+            hideProfileModal();
+            alert('Match created! Check your messages 💬');
+            showScreen('messages');
+        }
+
+        function renderMessages() {
+            const container = document.getElementById('matchesList');
+            container.innerHTML = conversations.map((conv, index) => `
+                <div class="match-card" onclick="openChat(${index})">
+                    <div class="avatar">${conv.emoji}</div>
+                    <div class="match-info">
+                        <div class="match-header">
+                            <div class="match-name">${conv.name}</div>
+                            <div class="match-time">${conv.time}</div>
+                        </div>
+                        <div class="last-message">${conv.lastMessage}</div>
+                        <div class="match-footer">
+                            <div class="stake-text">${conv.stake} SOL staked</div>
+                            ${conv.hasCheckin ?
+                                '<div class="checkin-badge">Ready to meet!</div>' :
+                                `<div class="expiry-text">${conv.expiry}</div>`
+                            }
+                        </div>
+                    </div>
+                    ${conv.unread > 0 ? `<div class="unread-badge">${conv.unread}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function openChat(index) {
+            const conv = conversations[index];
+
+            document.getElementById('chatName').textContent = conv.name;
+            document.getElementById('chatStake').textContent = `${conv.stake} SOL each`;
+            document.getElementById('chatCountdown').textContent = conv.expiry;
+
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.innerHTML = conv.messages.map(msg =>
+                `<div class="message-bubble ${msg.own ? 'own' : 'their'}">${msg.text}</div>`
+            ).join('');
+
+            // Show check-in button only for Marcus
+            const checkinBtn = document.getElementById('checkinBtn');
+            if (conv.hasCheckin) {
+                checkinBtn.style.display = 'block';
+                checkinBtn.onclick = () => showScreen('checkin');
+            } else {
+                checkinBtn.style.display = 'none';
+            }
+
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            showScreen('chat');
+        }
+
+        function confirmCheckin() {
+            // Simulate both users confirming
+            setTimeout(() => {
+                alert('🎉 Both confirmed! Stakes released. +1 heart earned.');
+                showScreen('mint');
+            }, 500);
+        }
+
+        function mintNFT() {
+            // Show loading state
+            const mintScreen = document.getElementById('mint');
+            const originalHTML = mintScreen.innerHTML;
+
+            mintScreen.innerHTML = `
+                <div class="gradient-bg" style="background: linear-gradient(180deg, var(--purple) 0%, var(--pink) 100%);"></div>
+                <div class="mint-content loading">
+                    <div class="spinner"></div>
+                    <div class="status-text" style="margin-top: 24px;">Minting your Moment NFT...</div>
+                    <div class="status-sub">This may take a few seconds</div>
+                </div>
+            `;
+
+            // Simulate minting
+            setTimeout(() => {
+                const now = new Date();
+                document.getElementById('nftDate').textContent = now.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                showScreen('mintSuccess');
+
+                // Restore original mint screen HTML
+                mintScreen.innerHTML = originalHTML;
+
+                // Update Marcus conversation to remove check-in badge
+                conversations[0].hasCheckin = false;
+                conversations[0].lastMessage = "That was great! ✨";
+                conversations[0].time = "Just now";
+                renderMessages();
+            }, 2000);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message-bubble own';
+            messageEl.textContent = message;
+            messagesContainer.appendChild(messageEl);
+
+            input.value = '';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Gallery scroll
+        const galleryScroll = document.getElementById('galleryScroll');
+        const indicators = document.querySelectorAll('.indicator');
+
+        galleryScroll.addEventListener('scroll', () => {
+            const scrollLeft = galleryScroll.scrollLeft;
+            const width = galleryScroll.offsetWidth;
+            const page = Math.round(scrollLeft / width);
+
+            indicators.forEach((indicator, index) => {
+                if (index === page) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
+        });
+
+        // Screen navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showNav() {
+            document.getElementById('bottomNav').style.display = 'flex';
+        }
+
+        function setActiveNav(element) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        // Profile setup
+        function toggleInterest(element) {
+            const interest = element.textContent;
+
+            if (element.classList.contains('active')) {
+                element.classList.remove('active');
+                selectedInterests = selectedInterests.filter(i => i !== interest);
+            } else {
+                if (selectedInterests.length >= 5) {
+                    alert('You can select up to 5 interests');
+                    return;
+                }
+                element.classList.add('active');
+                selectedInterests.push(interest);
+            }
+
+            document.getElementById('interestCount').textContent = selectedInterests.length;
+        }
+
+        function selectStake(element, value) {
+            document.querySelectorAll('.stake-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            element.classList.add('active');
+
+            const customInput = document.getElementById('customStakeInput');
+            if (value === 'custom') {
+                customInput.classList.add('active');
+            } else {
+                customInput.classList.remove('active');
+                selectedStake = value;
+            }
+        }
+
+        function setupProfile() {
+            const name = document.getElementById('profileName').value;
+            const age = document.getElementById('profileAge').value;
+
+            if (!name || !age || selectedInterests.length < 3) {
+                alert('Please fill in all fields and select at least 3 interests');
+                return;
+            }
+
+            showScreen('browse');
+            showNav();
+        }
+    </script>
+</body>
+</html>

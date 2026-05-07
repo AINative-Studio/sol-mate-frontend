@@ -30,7 +30,9 @@ SOLmate introduces **financial accountability** through blockchain:
 
 ## 🎮 Try the Demo
 
-**👉 [Interactive Web Demo](../solmate-complete-demo.html)** - Open in browser, no installation required
+**🎥 [Watch Demo Video](https://canva.link/9cso58wyuxd42d0)** - See SOLmate in action
+
+**👉 [Interactive Web Demo](./solmate-complete-demo.html)** - Open in browser, no installation required
 
 Experience the full user flow:
 - Browse profiles with compatibility scores
