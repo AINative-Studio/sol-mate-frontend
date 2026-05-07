@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "SOLmate",
+    "slug": "solmate",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#F0407A",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.solmate.app"
+    },
+    "android": {
+      "package": "com.solmate.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "BLUETOOTH",
+        "BLUETOOTH_ADMIN"
+      ]
+    },
+    "plugins": ["expo-font"]
+  }
+}
